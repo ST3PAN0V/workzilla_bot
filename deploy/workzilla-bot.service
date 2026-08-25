@@ -1,0 +1,16 @@
+[Unit]
+Description=Workzilla order filter bot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/workzilla_bot
+EnvironmentFile=/opt/workzilla_bot/.env
+ExecStart=/opt/workzilla_bot/.venv/bin/python -m scripts.run_bot
+Restart=on-failure
+RestartSec=10
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
