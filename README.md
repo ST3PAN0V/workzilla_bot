@@ -17,7 +17,7 @@
 git clone https://github.com/ST3PAN0V/workzilla_bot.git
 cd workzilla_bot
 python3 -m venv .venv
-.venv/bin/pip install -e .
+.venv/bin/python -m pip install -e .
 cp .env.example .env
 chmod 600 .env
 ```
@@ -98,7 +98,7 @@ sudo journalctl -u workzilla-bot -f
 ```bash
 cd /home/st3pan0v/apps/workzilla_bot
 git pull --ff-only
-.venv/bin/pip install -e .
+.venv/bin/python -m pip install -e .
 sudo systemctl restart workzilla-bot
 ```
 
