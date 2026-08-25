@@ -5,9 +5,11 @@ After=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/workzilla_bot
-EnvironmentFile=/opt/workzilla_bot/.env
-ExecStart=/opt/workzilla_bot/.venv/bin/python -m scripts.run_bot
+User=st3pan0v
+Group=st3pan0v
+WorkingDirectory=/home/st3pan0v/apps/workzilla_bot
+EnvironmentFile=/home/st3pan0v/apps/workzilla_bot/.env
+ExecStart=/home/st3pan0v/apps/workzilla_bot/.venv/bin/python -m scripts.run_bot
 Restart=on-failure
 RestartSec=10
 UMask=0077

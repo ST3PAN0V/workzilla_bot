@@ -14,7 +14,7 @@
 ## Установка
 
 ```bash
-git clone git@github.com:ST3PAN0V/workzilla_bot.git
+git clone https://github.com/ST3PAN0V/workzilla_bot.git
 cd workzilla_bot
 python3 -m venv .venv
 .venv/bin/pip install -e .
@@ -74,32 +74,32 @@ Smoke-тест берёт первый заказ из раздела «Диза
 Подключение:
 
 ```bash
-ssh root@83.136.232.143
+ssh -l st3pan0v 158.160.63.154
 ```
 
-Рабочий каталог — `/opt/workzilla_bot`. После клонирования, установки и первой
-ручной авторизации установите systemd-сервис:
+Рабочий каталог — `/home/st3pan0v/apps/workzilla_bot`. После клонирования,
+установки и первой ручной авторизации установите systemd-сервис:
 
 ```bash
-cp deploy/workzilla-bot.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now workzilla-bot
-systemctl status workzilla-bot
+sudo cp deploy/workzilla-bot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now workzilla-bot
+sudo systemctl status workzilla-bot
 ```
 
 Логи:
 
 ```bash
-journalctl -u workzilla-bot -f
+sudo journalctl -u workzilla-bot -f
 ```
 
 Обновление:
 
 ```bash
-cd /opt/workzilla_bot
+cd /home/st3pan0v/apps/workzilla_bot
 git pull --ff-only
 .venv/bin/pip install -e .
-systemctl restart workzilla-bot
+sudo systemctl restart workzilla-bot
 ```
 
 Если сессия Workzilla истекла, остановите сервис, заново выполните
