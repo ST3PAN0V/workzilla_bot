@@ -1,30 +1,30 @@
 # Workzilla Bot
 
-A Python service that monitors Workzilla orders, classifies them with YandexGPT, and sends relevant opportunities to Telegram. A reply button generates a Russian response for the selected order.
+Сервис на Python для мониторинга заказов Workzilla: классифицирует задания с помощью YandexGPT и отправляет подходящие предложения в Telegram. По кнопке готовит ответ на русском языке для выбранного заказа.
 
-## What it does
+**Стек:** Python 3.10+ · asyncio · httpx · python-dotenv · Yandex AI Studio · Telegram Bot API
 
-- Polls open orders through an asynchronous HTTP client.
-- Classifies new orders using the project's matching criteria and LLM prompts.
-- Keeps a local decision log to avoid analyzing the same order again.
-- Sends accepted orders to one configured Telegram recipient.
-- Generates a reply on request, retrieves the customer's name when available, and reuses previously generated replies.
-- Retries pending notifications after a delivery failure.
+## Возможности
 
-## Stack
+- Получение открытых заказов через асинхронный HTTP-клиент.
+- Классификация новых заданий по критериям и LLM-промптам проекта.
+- Локальный журнал решений, который помогает не анализировать один заказ повторно.
+- Отправка подходящих заказов одному настроенному получателю в Telegram.
+- Генерация ответа по запросу: с именем заказчика, если оно доступно, и повторным использованием ранее подготовленного текста.
+- Повторная отправка уведомлений, которые не удалось доставить.
 
-Python 3.10+, `asyncio`, `httpx`, `python-dotenv`, Yandex AI Studio, and Telegram Bot API. Runtime state is stored in local JSON files.
+Состояние сервиса хранится в локальных JSON-файлах.
 
-## Requirements
+## Что нужно для запуска
 
-- Python 3.10 or newer.
-- A Workzilla account with access to orders and its email inbox.
-- A Telegram bot created through BotFather.
-- A Yandex Cloud API key and folder ID with access to the configured model.
+- Python 3.10 или новее.
+- Аккаунт Workzilla с доступом к заказам и связанной электронной почте.
+- Telegram-бот, созданный через BotFather.
+- API-ключ Yandex Cloud и идентификатор каталога с доступом к выбранной модели.
 
-## Setup
+## Установка и настройка
 
-Run the following from a terminal on Linux:
+Выполните в терминале Linux:
 
 ```bash
 git clone https://github.com/ST3PAN0V/workzilla_bot.git
@@ -35,7 +35,7 @@ cp .env.example .env
 chmod 600 .env
 ```
 
-Set your own values in `.env`:
+Укажите свои значения в `.env`:
 
 ```dotenv
 YC_API_KEY=<your-api-key>
@@ -47,55 +47,57 @@ WORKZILLA_POLL_INTERVAL_SECONDS=10
 TELEGRAM_BOT_TOKEN=<your-telegram-bot-token>
 ```
 
-The model shown above is the client's current default. See [the LLM integration notes](docs/YANDEX_LLM.md) for model URI and endpoint options.
+В примере указана модель, которую клиент использует по умолчанию. Варианты URI модели и API-адресов описаны в [документации LLM-интеграции](docs/YANDEX_LLM.md).
 
-### Choose the Telegram recipient
+### Получатель в Telegram
 
-The bot currently serves a single recipient, configured in source code. Set `RECIPIENT_USERNAME` in [`src/workzilla/telegram.py`](src/workzilla/telegram.py) to the intended Telegram username, without `@`.
+Текущая реализация работает с одним получателем, который задаётся в исходном коде. В [`src/workzilla/telegram.py`](src/workzilla/telegram.py) установите `RECIPIENT_USERNAME`: имя пользователя Telegram без `@`.
 
-The optional Telegram smoke test has a separate `RECIPIENT_USERNAME` in [`scripts/telegram_smoke.py`](scripts/telegram_smoke.py). Configure it separately if you use that test.
+У необязательной интеграционной проверки есть отдельный `RECIPIENT_USERNAME` в [`scripts/telegram_smoke.py`](scripts/telegram_smoke.py). Если будете запускать этот скрипт, настройте и его.
 
-## Run
+## Запуск
 
-First, authenticate with Workzilla. The script reuses a saved session or asks for the one-time code sent by email:
+Сначала авторизуйтесь в Workzilla. Скрипт использует сохранённую сессию или запрашивает одноразовый код из письма:
 
 ```bash
 .venv/bin/python -m scripts.workzilla_smoke
 ```
 
-Start the bot:
+Затем запустите бота:
 
 ```bash
 .venv/bin/python -m scripts.run_bot
 ```
 
-Send `/start` to the Telegram bot from the configured recipient account. Once registered, the recipient is saved locally.
+Отправьте боту `/start` с аккаунта настроенного получателя. После регистрации данные получателя сохраняются локально.
 
-The service polls for new orders, sends matching orders to Telegram, and handles the reply button. Generated replies are delivered in Telegram for review.
+Сервис начнёт опрашивать новые заказы, отправлять подходящие предложения и обрабатывать кнопку ответа. Подготовленные ответы приходят в Telegram для просмотра.
 
-## Tests
+## Проверки
 
-Run the repository's unittest suite:
+### Автоматические тесты
+
+Запуск набора тестов на `unittest`:
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-### Optional live integration check
+### Необязательная проверка интеграций
 
-The Telegram smoke script fetches an order from the Design category, generates a reply, and sends both to its configured recipient:
+Скрипт получает заказ из категории «Дизайн», генерирует ответ и отправляет оба сообщения своему получателю:
 
 ```bash
 .venv/bin/python -m scripts.telegram_smoke
 ```
 
-This check uses live Workzilla, LLM, and Telegram APIs. The configured recipient must first send `/start`. Stop the main bot before running it, because both processes poll Telegram updates using the same token.
+Проверка обращается к реальным API Workzilla, LLM и Telegram. Получатель должен предварительно отправить `/start`. Перед проверкой остановите основной бот: оба процесса получают обновления Telegram с одним токеном.
 
-## Run as a Linux service
+## Запуск как службы Linux
 
-A systemd unit is included in [`deploy/workzilla-bot.service`](deploy/workzilla-bot.service). Before installing it, adapt `User`, `Group`, `WorkingDirectory`, `EnvironmentFile`, and `ExecStart` to your account and installation directory.
+В репозитории есть systemd-юнит [`deploy/workzilla-bot.service`](deploy/workzilla-bot.service). Перед установкой адаптируйте `User`, `Group`, `WorkingDirectory`, `EnvironmentFile` и `ExecStart` под свой аккаунт и каталог проекта.
 
-Complete the interactive authentication and recipient registration first, then install the customized unit:
+Сначала выполните интерактивную авторизацию и регистрацию получателя, затем установите настроенный юнит:
 
 ```bash
 sudo cp deploy/workzilla-bot.service /etc/systemd/system/
@@ -104,27 +106,26 @@ sudo systemctl enable --now workzilla-bot
 sudo systemctl status workzilla-bot
 ```
 
-View logs with:
+Просмотр журнала:
 
 ```bash
 sudo journalctl -u workzilla-bot -f
 ```
 
-If the Workzilla session expires, stop the service, run `scripts.workzilla_smoke` interactively from the project directory, and start the service again.
+Если сессия Workzilla истечёт, остановите службу, интерактивно запустите `scripts.workzilla_smoke` из каталога проекта и снова запустите службу.
 
-## Project layout
+## Структура проекта
 
-| Path | Purpose |
+| Путь | Назначение |
 | --- | --- |
-| [`src/workzilla/client.py`](src/workzilla/client.py) | Workzilla authentication and API requests |
-| [`src/workzilla/analyzer.py`](src/workzilla/analyzer.py) | Order normalization and classification |
-| [`src/workzilla/runner.py`](src/workzilla/runner.py) | Polling, decisions, and notification retries |
-| [`src/workzilla/responder.py`](src/workzilla/responder.py) | Reply generation |
-| [`src/workzilla/telegram.py`](src/workzilla/telegram.py) | Telegram delivery and callbacks |
-| [`shared_llm/`](shared_llm/) | Shared Yandex LLM client |
-| [`scripts/`](scripts/) | Entry points and integration checks |
-| [`tests/`](tests/) | Automated tests |
-| `data/` | Local session, recipient, and decision state |
+| [`src/workzilla/client.py`](src/workzilla/client.py) | Авторизация в Workzilla и запросы к API |
+| [`src/workzilla/analyzer.py`](src/workzilla/analyzer.py) | Нормализация и классификация заказов |
+| [`src/workzilla/runner.py`](src/workzilla/runner.py) | Опрос заказов, учёт решений и повторная отправка уведомлений |
+| [`src/workzilla/responder.py`](src/workzilla/responder.py) | Генерация ответов |
+| [`src/workzilla/telegram.py`](src/workzilla/telegram.py) | Отправка сообщений и обработка кнопок Telegram |
+| [`shared_llm/`](shared_llm/) | Общий клиент Yandex LLM |
+| [`scripts/`](scripts/) | Точки входа и проверки интеграций |
+| [`tests/`](tests/) | Автоматические тесты |
+| `data/` | Локальное состояние сессии, получателя и решений |
 
-`.env` and runtime files under `data/` are excluded by `.gitignore`. Matching prompts and recipient configuration are specific to this project's workflow; review them before adapting the bot to another use case.
-
+Файл `.env` и рабочие файлы в `data/` исключены через `.gitignore`. Промпты отбора и настройки получателя рассчитаны на сценарий этого проекта; перед адаптацией бота под свои задачи их нужно проверить.
