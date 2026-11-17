@@ -4,6 +4,8 @@
 
 **Стек:** Python 3.10+ · asyncio · httpx · python-dotenv · Yandex AI Studio · Telegram Bot API
 
+В [портфолио](https://github.com/ST3PAN0V/MyPortfolio/blob/main/projects/07-workzilla-assistant.md) описан проект с локальной LLM. Клиент в этом открытом репозитории настроен на YandexGPT; инструкции ниже относятся к нему.
+
 ## Возможности
 
 - Получение открытых заказов через асинхронный HTTP-клиент.
